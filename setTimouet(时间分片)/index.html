@@ -9,7 +9,69 @@
 </head>
 
 <body>
-
+  <ul id="container"></ul>
 </body>
+<script>
+  // 一次性渲染处理
+  // let now = Date.now();
+  // const total = 100000;
+  // let ul = document.getElementById("container");
+  // for (let i = 0; i < total; i++) {
+  //   let li = document.createElement("li");
+  //   li.innerText = ~~(Math.random() * total);
+  //   ul.appendChild(li);
+  // }
+  // console.log('Js运行时间：', Date.now() - now);
+  // setTimeout(() => {
+  //   console.log('总运行时间：', Date.now() - now);
+  // }, 0)
+
+
+  /**
+   * 采用递归 分片处理
+   * @parme dom 节点
+   * @parme totalNum 总长度 默认100000
+   * @parme once 一次插入多少条，默认20
+  */
+  class Loop {
+    now = Date.now();
+    total;
+    dom;
+    once;
+    constructor(dom, totalNum = 100000, onceNum = 20) {
+      this.dom = dom;
+      this.total = totalNum;
+      this.once = onceNum;
+    }
+
+    seeLoop(curTotal = this.total, curIndex = this.once) {
+      if (curTotal <= 0) {
+        return;
+      }
+      //每页多少条
+      let pageCount = Math.min(curTotal, this.once);
+      let _this = this;
+      window.requestAnimationFrame(function () {
+        // requestAnimationFrame的步伐跟着系统的刷新步伐走。它能保证回调函数在屏幕每一次的刷新间隔中只被执行一次，这样就不会引起丢帧现象。
+        let fragment = document.createDocumentFragment();
+        //DocumentFragment不是真实DOM树的一部分，它的变化不会触发DOM树的（重新渲染) ，且不会导致性能等问题。
+        // 可以使用document.createDocumentFragment方法或者构造函数来创建一个空的DocumentFragment
+
+        for (let i = 0; i < pageCount; i++) {
+          let li = document.createElement('li');
+          li.innerText = curIndex + i + ' : ' + ~~(Math.random() * _this.total)
+          fragment.appendChild(li)
+        }
+        _this.dom.appendChild(fragment);
+        _this.seeLoop(curTotal - pageCount, curIndex + pageCount)
+      })
+
+    }
+  }
+
+  let see = new Loop(document.getElementById("container"));
+  console.log(see);
+  see.seeLoop();
+</script>
 
 </html>
